@@ -1,5 +1,4 @@
-transactions = (
-    [
+transactions = [
         {
             "id": 939719570,
             "state": "EXECUTED",
@@ -76,4 +75,3 @@ transactions = (
             "to": "Счет 14211924144426031657"
         }
     ]
-)
