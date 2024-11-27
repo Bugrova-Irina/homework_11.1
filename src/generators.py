@@ -1,4 +1,4 @@
-from typing import Any, Generator
+from typing import Any, Generator, Iterator
 
 transactions = [
     {
@@ -49,25 +49,39 @@ transactions = [
 ]
 
 
-def filter_by_currency(transactions_list: list[dict[str, Any]], currency: str) -> Any:
+def filter_by_currency(transactions_list: list[dict[str, Any]], currency: str) -> Iterator:
     """Возвращает итератор, который поочередно выдает транзакции,
     где валюта операции соответствует заданной"""
 
-    return (x for x in transactions_list if x["operationAmount"]["currency"]["code"] == currency)
+    if transactions_list == [{}]:
+        raise ValueError("Некорректные исxодные данные")
+    else:
+        return (x for x in transactions_list if x["operationAmount"]["currency"]["code"] == currency)
 
 
 def transaction_descriptions(transactions_list: list[dict[str, Any]]) -> Any:
     """Возвращает из списка словарей с транзакциями описание каждой операции по очереди"""
-    description = list(x["description"] for x in transactions_list if x["description"] != "")
-    for item in description:
-        yield item
+
+    if transactions_list == [{}]:
+        raise ValueError("Некорректные исxодные данные")
+    else:
+        description = list(x["description"] for x in transactions_list if x["description"] != "")
+        for item in description:
+            yield item
 
 
 def card_number_generator(start: int, stop: int) -> Generator:
     """Генератор номеров карт"""
     number_zero = "0000000000000000"
 
-    while start <= stop:
+    if start > stop:
+        print("Начальное значение не может быть больше конечного")
+
+    # if start < 0 or stop < 0:
+    #     text = "Введите положительные значения"
+    #     return text
+
+    while start <= stop and 0 <= start <= 9999999999999999 and 0 <= stop <= 9999999999999999:
         card_number_empty = ""
         card_number_str = number_zero[: 16 - len(str(start))] + str(start)
         card_number_total = (
@@ -78,13 +92,16 @@ def card_number_generator(start: int, stop: int) -> Generator:
         start += 1
 
 
-filter_currency = filter_by_currency(transactions, "USD")
+filter_currency = filter_by_currency(transactions, "EUR")
 for _ in range(2):
-    print(next(filter_currency))
+    try:
+        print(next(filter_currency))
+    except StopIteration:
+        print("Нет транзакций с такой валютой")
 
 descriptions = transaction_descriptions(transactions)
 for _ in range(5):
     print(next(descriptions))
 
-for card_number in card_number_generator(221111, 221114):
+for card_number in card_number_generator(1, 5):
     print(card_number)
